@@ -16,7 +16,7 @@ spring:
       # ollama config: qwen2:7b  llama3:latest
       base-url: http://localhost:11434
       embedding:
-        model: mxbai-embed-large
+        model: qllama/bge-small-zh-v1.5
     zhipuai:
       api-key: ${ZHIPUAI_API_KEY}
       chat:
