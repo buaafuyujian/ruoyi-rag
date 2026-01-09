@@ -54,3 +54,9 @@ nbdist/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
+
+# 排除整个 docker 文件夹
+docker/*
+
+# 允许 docker-compose.yml 文件
+!docker/docker-compose.yml
