@@ -1,24 +1,24 @@
 package com.ruoyi.service;
 
 import cn.hutool.core.util.IdUtil;
+import com.mongodb.client.result.UpdateResult;
 import com.ruoyi.annotation.BeanType;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.component.QdrantVectorStoreComponet;
 import com.ruoyi.controller.ChatController;
+import com.ruoyi.domain.ChatApp;
 import com.ruoyi.domain.ChatFile;
 import com.ruoyi.domain.ChatFileSegment;
 import com.ruoyi.domain.ChatKnowledge;
+import com.ruoyi.operator.AiOperator;
+import com.ruoyi.pojo.Chat;
 import com.ruoyi.pojo.ChatList;
 import com.ruoyi.pojo.Message;
 import com.ruoyi.service.async.VectorStoreAsyncService;
 import com.ruoyi.utils.MongoUtil;
-import com.ruoyi.pojo.Chat;
 import com.ruoyi.vo.ChatVo;
 import com.ruoyi.vo.MessageVo;
 import com.ruoyi.vo.QueryVo;
-import com.ruoyi.operator.AiOperator;
-import com.ruoyi.domain.ChatApp;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -31,8 +31,6 @@ import org.springframework.ai.reader.JsonReader;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
-import org.springframework.ai.vectorstore.SearchRequest;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
@@ -152,7 +150,7 @@ public class AiService implements ApplicationContextAware {
             case "csv":
                 TextReader textReader = new TextReader(file.getResource());
                 List<Document> documents = textReader.get();
-                documentList = new TokenTextSplitter().apply(documents);
+                documentList = TokenTextSplitter.builder().withChunkSize(512).build().apply(documents);
                 break;
             case "pdf":
                 //`PagePdfDocumentReader`使用Apache PdfBox库解析PDF文档
