@@ -5,6 +5,12 @@ spring:
 
   ai:
     openai:
+      # 嵌入式模型
+      embedding:
+        base-url: http://172.19.70.8:15433
+        api-key: EMPTY
+        options:
+          model: BAAI/bge-small-zh-v1.5
       # openai: gpt-3.5-turbo gpt-4o
       base-url: https://api.xty.app
       api-key: ${OPEN_AI_API_KEY}

@@ -2,11 +2,10 @@ package com.ruoyi.component;
 
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.grpc.Collections;
-import org.springframework.ai.ollama.OllamaEmbeddingModel;
+import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
 import org.springframework.ai.vectorstore.qdrant.autoconfigure.QdrantVectorStoreProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +22,7 @@ public class QdrantVectorStoreComponet {
     private QdrantVectorStoreProperties properties;
 
     @Autowired
-    @Qualifier("ollamaEmbeddingModel")
-    private OllamaEmbeddingModel ollamaEmbeddingModel;
+    private OpenAiEmbeddingModel openAiEmbeddingModel;
 
     /**
      * 获取Qdrant向量存储组件
@@ -41,136 +39,18 @@ public class QdrantVectorStoreComponet {
                             .build()).get();
         }
 
-//        TransformersEmbeddingModel localEmbeddingModel = EmbeddingModelUtil.getLocalEmbeddingModel();
-        return QdrantVectorStore.builder(qdrantClient,ollamaEmbeddingModel)
-                .collectionName(collectionName)
-                .initializeSchema(properties.isInitializeSchema())
-                .build();
+        return QdrantVectorStore.builder(qdrantClient, openAiEmbeddingModel)
+            .collectionName(collectionName)
+            .initializeSchema(properties.isInitializeSchema())
+            .build();
     }
 
     // 覆盖QdrantVectorStoreAutoConfiguration 中的自动注入
     @Bean
     public QdrantVectorStore customQdrantVectorStore() {
-        // 你可以返回一个自定义的 QdrantVectorStore，或者返回 null 或者其他实现
-        return QdrantVectorStore.builder(qdrantClient,ollamaEmbeddingModel).build();
+        return QdrantVectorStore.builder(qdrantClient, openAiEmbeddingModel)
+                                .initializeSchema(properties.isInitializeSchema())
+                                .build();
     }
-
-//    /**
-//     * 获取Ollama Qdrant向量存储组件
-//     * @param baseUrl
-//     * @param embeddingmodel
-//     * @return
-//     * @throws Exception
-//     */
-//    public QdrantVectorStore getOllamaQdrantVectorStore (String baseUrl, String embeddingmodel ) throws Exception {
-//        if (!qdrantClient.collectionExistsAsync(SystemConstant.OLLAMA_QDRANT).get()) {
-//            qdrantClient.createCollectionAsync(SystemConstant.OLLAMA_QDRANT,
-//                    Collections.VectorParams.newBuilder()
-//                            .setDistance(Collections.Distance.Cosine)
-//                            .setSize(512)
-//                            .build()).get();
-//        }
-////       var ollamaApi = OllamaApi.builder().baseUrl(baseUrl).build();
-////        var embeddingModel = OllamaEmbeddingModel.builder()
-////                .ollamaApi(ollamaApi).defaultOptions(
-////                OllamaOptions.builder().model(embeddingmodel).build()).build();
-//
-//        TransformersEmbeddingModel localEmbeddingModel = EmbeddingModelUtil.getLocalEmbeddingModel();
-//        return QdrantVectorStore.builder(qdrantClient,localEmbeddingModel)
-//                .collectionName(SystemConstant.OLLAMA_QDRANT)
-//                .initializeSchema(properties.isInitializeSchema())
-//                .build();
-//    }
-//
-//    /**
-//     * 获取OpenAi Qdrant向量存储组件
-//     * @param baseUrl
-//     * @param apiKey
-//     * @param embeddingmodel
-//     * @return
-//     * @throws Exception
-//     */
-//    public QdrantVectorStore getOpenAiQdrantVectorStore(String baseUrl, String apiKey, String embeddingmodel) throws Exception  {
-//        if (!qdrantClient.collectionExistsAsync(SystemConstant.OPENAI_QDRANT).get()) {
-//            qdrantClient.createCollectionAsync(SystemConstant.OPENAI_QDRANT,
-//                    Collections.VectorParams.newBuilder()
-//                            .setDistance(Collections.Distance.Cosine)
-//                            .setSize(512)
-//                            .build()).get();
-//        }
-////        var openAiApi = OpenAiApi.builder()
-////                .baseUrl(baseUrl)
-////                .apiKey(apiKey)
-////                .build();
-//
-////        var embeddingModel = new OpenAiEmbeddingModel(
-////                openAiApi,
-////                MetadataMode.EMBED,
-////                OpenAiEmbeddingOptions.builder()
-////                        .model(embeddingmodel)
-////                        .build(),
-////                RetryUtils.DEFAULT_RETRY_TEMPLATE);
-//
-//        TransformersEmbeddingModel localEmbeddingModel = EmbeddingModelUtil.getLocalEmbeddingModel();
-//        return QdrantVectorStore.builder(qdrantClient,localEmbeddingModel)
-//                .collectionName(SystemConstant.OPENAI_QDRANT)
-//                .initializeSchema(properties.isInitializeSchema())
-//                .build();
-//    }
-//
-//
-//
-//    /**
-//     * 获取智普AI 向量存储组件
-//     * @param baseUrl
-//     * @param embeddingmodel
-//     * @return
-//     * @throws Exception
-//     */
-//    public QdrantVectorStore getZhiPuAiQdrantVectorStore (String baseUrl, String apiKey, String embeddingmodel) throws Exception {
-//        if (!qdrantClient.collectionExistsAsync(SystemConstant.ZHIPUAI_QDRANT).get()) {
-//            qdrantClient.createCollectionAsync(SystemConstant.ZHIPUAI_QDRANT,
-//                    Collections.VectorParams.newBuilder()
-//                            .setDistance(Collections.Distance.Cosine)
-//                            .setSize(512)
-//                            .build()).get();
-//        }
-////        var zhiPuAiApi = new ZhiPuAiApi(baseUrl,apiKey);
-////
-////        var embeddingModel = new ZhiPuAiEmbeddingModel(
-////                zhiPuAiApi,
-////                MetadataMode.EMBED,
-////                ZhiPuAiEmbeddingOptions.builder()
-////                        .model(embeddingmodel)
-////                        .build(),
-////                RetryUtils.DEFAULT_RETRY_TEMPLATE);
-//        TransformersEmbeddingModel localEmbeddingModel = EmbeddingModelUtil.getLocalEmbeddingModel();
-//        return QdrantVectorStore.builder(qdrantClient,localEmbeddingModel)
-//                .collectionName(SystemConstant.ZHIPUAI_QDRANT)
-//                .initializeSchema(properties.isInitializeSchema())
-//                .build();
-//    }
-//
-//    /**
-//     * 获取阿里百炼 向量存储组件
-//     * @param baseUrl
-//     * @param embeddingmodel
-//     * @return
-//     * @throws Exception
-//     */
-//    public QdrantVectorStore getDashScopeQdrantVectorStore (String baseUrl, String apiKey, String embeddingmodel) throws Exception {
-//        if (!qdrantClient.collectionExistsAsync(SystemConstant.DASHSCOPE_QDRANT).get()) {
-//            qdrantClient.createCollectionAsync(SystemConstant.DASHSCOPE_QDRANT,
-//                    Collections.VectorParams.newBuilder()
-//                            .setDistance(Collections.Distance.Cosine)
-//                            .setSize(512)
-//                            .build()).get();
-//        }
-//        TransformersEmbeddingModel localEmbeddingModel = EmbeddingModelUtil.getLocalEmbeddingModel();
-//        return QdrantVectorStore.builder(qdrantClient,localEmbeddingModel)
-//                .collectionName(SystemConstant.DASHSCOPE_QDRANT)
-//                .initializeSchema(properties.isInitializeSchema())
-//                .build();
-//    }
 
 }

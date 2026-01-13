@@ -22,14 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -240,7 +238,9 @@ public class OpenAiOperator implements AiOperator {
 
         }
 
-
+        log.info("Request parameters: baseUrl={}, apiKey={}, model={}", baseUrl, apiKey, model);
+        log.info("msgList size: {}", msgList.size());
+        log.info("msgList content: {}", msgList);
         Flux<String> flux = chatClient.prompt(new Prompt(msgList)).advisors(streamAdvisorList).stream().content();
 
 //        Flux<String> flux = responseFlux.map(response -> {
