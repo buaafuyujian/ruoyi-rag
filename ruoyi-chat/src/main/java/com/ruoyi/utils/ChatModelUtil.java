@@ -14,6 +14,12 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.zhipuai.ZhiPuAiChatModel;
 import org.springframework.ai.zhipuai.ZhiPuAiChatOptions;
 import org.springframework.ai.zhipuai.api.ZhiPuAiApi;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.HttpProtocol;
+import reactor.netty.http.client.HttpClient;
 
 import java.util.List;
 
@@ -27,12 +33,24 @@ public class ChatModelUtil {
      * @param baseUrl
      * @param apiKey
      * @param model
+     * @param restClientBuilderProvider 用于解决http2 不兼容问题
+     * @param webClientBuilderProvider 用于解决http2 不兼容问题
      * @return
      */
-    public static OpenAiChatModel getOpenAiChatModel(String baseUrl, String apiKey, String model, ToolCallback... toolCallbacks) {
+    public static OpenAiChatModel getOpenAiChatModel(String baseUrl, String apiKey, String model, ObjectProvider<RestClient.Builder> restClientBuilderProvider,
+                                                     ObjectProvider<WebClient.Builder> webClientBuilderProvider, ToolCallback... toolCallbacks) {
+
+        // 创建使用 HTTP/1.1 的 WebClient（流式请求使用）
+        HttpClient nettyHttpClient = HttpClient.create()
+                                               .protocol(HttpProtocol.HTTP11);  // 强制使用 HTTP/1.1
+        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(nettyHttpClient);
+        WebClient.Builder webClientBuilder = webClientBuilderProvider.getIfAvailable().clientConnector(connector);
+
         var openAiApi = OpenAiApi.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
+                .restClientBuilder(restClientBuilderProvider.getIfAvailable(RestClient::builder))
+                .webClientBuilder(webClientBuilder)
                 .build();
         var openAiChatOptions = OpenAiChatOptions.builder()
                 .model(model)

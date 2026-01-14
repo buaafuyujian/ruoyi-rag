@@ -37,10 +37,13 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
@@ -83,6 +86,12 @@ public class OpenAiOperator implements AiOperator {
     @Autowired
     private IChatKnowledgeService chatKnowledgeService;
 
+    // 用于解决http2 不兼容问题
+    @Autowired
+    ObjectProvider<RestClient.Builder> restClientBuilderProvider;
+
+    @Autowired
+    ObjectProvider<WebClient.Builder> webClientBuilderProvider;
 
 
 
@@ -203,7 +212,7 @@ public class OpenAiOperator implements AiOperator {
         msgList.add(new UserMessage(queryVo.getMsg()));
 
 
-        OpenAiChatModel openAiChatModel = ChatModelUtil.getOpenAiChatModel(baseUrl, apiKey, model,tools.getToolCallbacks());
+        OpenAiChatModel openAiChatModel = ChatModelUtil.getOpenAiChatModel(baseUrl, apiKey, model,restClientBuilderProvider,webClientBuilderProvider,tools.getToolCallbacks());
 
         // 提交到大模型获取最终结果
         ChatClient chatClient = ChatClient.builder(openAiChatModel)
