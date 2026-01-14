@@ -2,7 +2,7 @@ package com.ruoyi.operator;
 
 import cn.hutool.core.util.IdUtil;
 import com.ruoyi.annotation.BeanType;
-import com.ruoyi.component.QdrantVectorStoreComponet;
+import com.ruoyi.component.MilvusVectorStoreComponent;
 import com.ruoyi.controller.ChatController;
 import com.ruoyi.domain.ChatApp;
 import com.ruoyi.domain.ChatKnowledge;
@@ -37,7 +37,7 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.SearchRequest;
-import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
+import org.springframework.ai.vectorstore.milvus.MilvusVectorStore;
 import org.springframework.ai.zhipuai.ZhiPuAiChatModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +69,7 @@ public class ZhiPuAiOperator implements AiOperator {
 
 
     @Autowired
-    private QdrantVectorStoreComponet qdrantVectorStoreComponet;
+    private MilvusVectorStoreComponent milvusVectorStoreComponent;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -232,9 +232,9 @@ public class ZhiPuAiOperator implements AiOperator {
                 List<Advisor> advisorList = new ArrayList<>();
                 for (String knowledgeId : knowledgeIds) {
                     ChatKnowledge chatKnowledge = chatKnowledgeService.selectChatKnowledgeByKnowledgeId(knowledgeId);
-                    QdrantVectorStore dashScopeQdrantVectorStore = qdrantVectorStoreComponet.getVectorStore(chatKnowledge.getKnowledgeName());
+                    MilvusVectorStore milvusVectorStore = milvusVectorStoreComponent.getVectorStore(chatKnowledge.getKnowledgeName());
                     QuestionAnswerAdvisor questionAnswerAdvisor = QuestionAnswerAdvisor
-                            .builder(dashScopeQdrantVectorStore)
+                            .builder(milvusVectorStore)
                             .searchRequest(
                                     SearchRequest.builder()
                                             .topK(SystemConstant.TOPK).build()

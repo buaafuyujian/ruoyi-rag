@@ -4,7 +4,7 @@ import cn.hutool.core.util.IdUtil;
 import com.mongodb.client.result.UpdateResult;
 import com.ruoyi.annotation.BeanType;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.component.QdrantVectorStoreComponet;
+import com.ruoyi.component.MilvusVectorStoreComponent;
 import com.ruoyi.controller.ChatController;
 import com.ruoyi.domain.ChatApp;
 import com.ruoyi.domain.ChatFile;
@@ -31,7 +31,7 @@ import org.springframework.ai.reader.JsonReader;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
-import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
+import org.springframework.ai.vectorstore.milvus.MilvusVectorStore;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ public class AiService implements ApplicationContextAware {
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    private QdrantVectorStoreComponet qdrantVectorStoreComponet;
+    private MilvusVectorStoreComponent milvusVectorStoreComponent;
 
     @Autowired
     private VectorStoreAsyncService vectorStoreAsyncService;
@@ -219,9 +219,9 @@ public class AiService implements ApplicationContextAware {
 //                    neo4jService.processCsvFile(file,projectId,knowledgeId);
 //                }
 
-                QdrantVectorStore dashScopeQdrantVectorStore = qdrantVectorStoreComponet.getVectorStore(knowledgeName);
+                MilvusVectorStore milvusVectorStore = milvusVectorStoreComponent.getVectorStore(knowledgeName);
                 //异步执行
-                this.vectorStoreAsyncService.addVectorStore(fileId,dashScopeQdrantVectorStore, docList);
+                this.vectorStoreAsyncService.addVectorStore(fileId, milvusVectorStore, docList);
 
 
             } else {
@@ -355,9 +355,9 @@ public class AiService implements ApplicationContextAware {
         //删除文件分片
         this.fileSegmentService.deleteChatFileSegmentByFileId(fileId);
         // 删除redis向量数据库中对应的文档
-        QdrantVectorStore dashScopeQdrantVectorStore = qdrantVectorStoreComponet.getVectorStore(knowledgeId);
+        MilvusVectorStore milvusVectorStore = milvusVectorStoreComponent.getVectorStore(knowledgeId);
         //异步执行
-        vectorStoreAsyncService.removeByFileId(dashScopeQdrantVectorStore,fileId);
+        vectorStoreAsyncService.removeByFileId(milvusVectorStore, fileId);
         return true;
     }
 

@@ -4,8 +4,8 @@ import com.ruoyi.domain.ChatFile;
 import com.ruoyi.service.IChatFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
-import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -25,13 +25,13 @@ public class VectorStoreAsyncService {
 
     /**
      * 异步执行根据fileId删除向量存储
-     * @param qdrantVectorStore
+     * @param vectorStore
      * @param fileId
      * @throws Exception
      */
     @Async
-    public void removeByFileId(QdrantVectorStore qdrantVectorStore,String fileId) throws Exception {
-        qdrantVectorStore.delete(
+    public void removeByFileId(VectorStore vectorStore, String fileId) throws Exception {
+        vectorStore.delete(
                 new FilterExpressionBuilder().eq("fileId", fileId).build()
         );
         log.info("异步执行根据fileId删除向量存储成功");
@@ -40,14 +40,14 @@ public class VectorStoreAsyncService {
 
     /**
      * 异步执行新增向量存储
-     * @param qdrantVectorStore
+     * @param vectorStore
      * @param documentList
      * @throws Exception
      */
     @Async
-    public void addVectorStore(String fileId,QdrantVectorStore qdrantVectorStore, List<Document> documentList) throws Exception {
+    public void addVectorStore(String fileId, VectorStore vectorStore, List<Document> documentList) throws Exception {
         if (!CollectionUtils.isEmpty(documentList)) {
-            qdrantVectorStore.add(documentList);
+            vectorStore.add(documentList);
             log.info("异步执行新增向量存储成功");
         }
 

@@ -35,11 +35,16 @@ spring:
     dashscope:
       api-key: ${DASHSCOPE_API_KEY}
     vectorstore:
-      qdrant:
-        host: localhost
-        port: 6334
-        initialize-schema: true
+      milvus:
+        client:
+          host: localhost
+          port: 19530
+        database-name: default
         collection-name: rag
+        embedding-dimension: 512
+        index-type: IVF_FLAT
+        metric-type: COSINE
+        initialize-schema: true
 
 
 
