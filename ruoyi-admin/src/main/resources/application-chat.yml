@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://admin:admin123@localhost:27017/ruoyi_rag?authSource=admin
+      uri: mongodb://admin:admin123@172.19.70.30:27017/ruoyi_rag?authSource=admin
 
   ai:
     openai:
@@ -37,7 +37,7 @@ spring:
     vectorstore:
       milvus:
         client:
-          host: localhost
+          host: 172.19.70.30
           port: 19530
         database-name: default
         collection-name: rag
